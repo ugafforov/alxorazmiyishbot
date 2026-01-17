@@ -77,9 +77,17 @@ def api_call(method, params=None):
         request_timeout = 60 if method == "getUpdates" else 10
         with urllib.request.urlopen(req, timeout=request_timeout) as response:
             return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            body = ""
+        print(f"API xatolik ({method}): HTTP {e.code} {e.reason}")
+        return {"ok": False, "error_code": e.code, "description": body}
     except Exception as e:
         print(f"API xatolik ({method}): {e}")
-        return {"ok": False}
+        return {"ok": False, "description": str(e)}
 
 def send_msg(chat_id, text, reply_markup=None):
     params = {"chat_id": chat_id, "text": text, "parse_mode": "HTML"}
@@ -114,9 +122,7 @@ class BotLogic:
         self.labels = {
             "menu_about": {"uz": "🏫 Biz haqimizda", "en": "🏫 About us", "ru": "🏫 О нас"},
             "menu_contact": {"uz": "💬 Biz bilan bog'lanish", "en": "💬 Contact us", "ru": "💬 Связаться"},
-            "menu_hr": {"uz": "HR amaliyoti", "en": "HR practice", "ru": "HR практика"},
             "menu_jobs": {"uz": "💼 Bo'sh ish o'rinlari", "en": "💼 Job vacancies", "ru": "💼 Вакансии"},
-            "menu_talent": {"uz": "💼 Iste'dodlar zaxirasi", "en": "💼 Talent pool", "ru": "💼 Кадровый резерв"},
             "menu_lang": {"uz": "🌐 Tilni almashtirish", "en": "🌐 Change language", "ru": "🌐 Сменить язык"},
             "back": {"uz": "⬅️ Orqaga", "en": "⬅️ Back", "ru": "⬅️ Назад"},
             "cancel": {"uz": "❌ Bekor qilish", "en": "❌ Cancel", "ru": "❌ Отмена"},
@@ -153,7 +159,7 @@ class BotLogic:
         }
 
     def _action_from_text(self, text):
-        for action_key in ["menu_about", "menu_contact", "menu_hr", "menu_jobs", "menu_talent", "menu_lang", "back", "cancel", "skip", "send_contact", "lang_uz", "lang_en", "lang_ru"]:
+        for action_key in ["menu_about", "menu_contact", "menu_jobs", "menu_lang", "back", "cancel", "skip", "send_contact", "lang_uz", "lang_en", "lang_ru"]:
             labels = self.labels.get(action_key, {})
             if text in labels.values():
                 return action_key
@@ -174,6 +180,7 @@ class BotLogic:
                 self.lang[user_id] = "uz"
                 lang = "uz"
             self.states[user_id] = None
+            send_msg(chat_id, "Menu yangilanmoqda...", {"remove_keyboard": True})
             send_msg(chat_id, "<b>Assalomu alaykum!</b>\n\nKerakli bo'limni tanlang:", self._main_menu(lang))
             return
         
@@ -192,10 +199,6 @@ class BotLogic:
 
         if action == "back":
             send_msg(chat_id, "Menu:", self._main_menu(lang))
-            return
-
-        if action in ["menu_hr", "menu_talent"]:
-            send_msg(chat_id, "Bu bo'lim menyudan olib tashlangan.", self._main_menu(lang))
             return
 
         # Asosiy Menyu tugmalarini qayta ishlash
@@ -261,22 +264,14 @@ class BotLogic:
 
             if phone_val:
                 state["data"]["phone"] = phone_val
-                if state.get("mode") == "talent":
-                    state["step"] = "exp"
-                    markup = {
-                        "keyboard": [[{"text": self._label("cancel", lang)}]],
-                        "resize_keyboard": True
-                    }
-                    send_msg(chat_id, "Ish tajribangiz haqida qisqacha ma'lumot bering:", markup)
-                else:
-                    state["step"] = "position"
-                    kb = [[{"text": p} for p in row] for row in self.positions]
-                    kb.append([{"text": self._label("cancel", lang)}])
-                    markup = {
-                        "keyboard": kb,
-                        "resize_keyboard": True
-                    }
-                    send_msg(chat_id, "Qaysi lavozimga topshirmoqchisiz? (Ro'yxatdan tanlang yoki yozing):", markup)
+                state["step"] = "position"
+                kb = [[{"text": p} for p in row] for row in self.positions]
+                kb.append([{"text": self._label("cancel", lang)}])
+                markup = {
+                    "keyboard": kb,
+                    "resize_keyboard": True
+                }
+                send_msg(chat_id, "Qaysi lavozimga topshirmoqchisiz? (Ro'yxatdan tanlang yoki yozing):", markup)
             else:
                 send_msg(chat_id, "Iltimos, telefon raqamingizni tugma orqali yuboring yoki yozing:")
 
@@ -371,9 +366,14 @@ bot_logic = BotLogic()
 def run_polling():
     offset = 0
     print("Bot ishga tushdi. Yangilanishlar kutilmoqda (polling)...")
+    api_call("deleteWebhook", {"drop_pending_updates": True})
     while True:
         result = api_call("getUpdates", {"timeout": 30, "offset": offset})
         if not result.get("ok"):
+            if result.get("error_code") == 409:
+                api_call("deleteWebhook", {"drop_pending_updates": True})
+                time.sleep(5)
+                continue
             time.sleep(2)
             continue
 
