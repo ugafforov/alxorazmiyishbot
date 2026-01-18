@@ -5,6 +5,7 @@ import time
 import logging
 import requests
 import threading
+from flask import Flask
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 import firebase_admin
@@ -1105,9 +1106,30 @@ class BotLogic:
         else:
             self.api.send_message(Config.HR_CHAT_ID, report)
 
+def run_health_check():
+    """Render uchun health check endpointini ishga tushirish"""
+    app = Flask(__name__)
+
+    @app.route('/')
+    def health_check():
+        return "Bot is running!", 200
+
+    port = int(os.environ.get("PORT", 10000))
+    # Flask loglarini kamaytirish
+    import logging
+    log = logging.getLogger('werkzeug')
+    log.setLevel(logging.ERROR)
+    
+    app.run(host='0.0.0.0', port=port)
+
 def run_polling():
     if not Config.validate():
         sys.exit(1)
+
+    # Health check serverini alohida thread'da ishga tushirish
+    health_thread = threading.Thread(target=run_health_check, daemon=True)
+    health_thread.start()
+    logger.info("Health check serveri ishga tushdi.")
 
     api = TelegramAPI(Config.TOKEN)
     db = FirestoreDB()
