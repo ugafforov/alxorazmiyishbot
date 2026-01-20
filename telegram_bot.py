@@ -5,6 +5,7 @@ import time
 import logging
 import requests
 import threading
+import signal
 from flask import Flask
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
@@ -51,24 +52,51 @@ class TelegramAPI:
         self.base_url = f"https://api.telegram.org/bot{token}/"
         self.session = requests.Session()
 
-    def call(self, method, params=None, files=None, timeout=10):
+    def call(self, method, params=None, files=None, timeout=10, max_retries=2):
         url = self.base_url + method
-        try:
-            if method == "getUpdates":
-                timeout = params.get("timeout", 30) + 5 if params else 35
-            
-            response = self.session.post(url, data=params, files=files, timeout=timeout)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.HTTPError as e:
-            logger.error(f"API HTTP xatolik ({method}): {e}")
+
+        # getUpdates uchun timeout'ni sozlash
+        if method == "getUpdates":
+            timeout = params.get("timeout", 30) + 5 if params else 35
+        # sendMessage va boshqa methodlar uchun timeout'ni oshirish
+        elif method in ["sendMessage", "sendPhoto", "sendDocument", "editMessageText"]:
+            timeout = 20
+
+        # Retry mexanizmi (getUpdates bundan mustasno)
+        retries = max_retries if method != "getUpdates" else 0
+
+        for attempt in range(retries + 1):
             try:
+                response = self.session.post(url, data=params, files=files, timeout=timeout)
+                response.raise_for_status()
                 return response.json()
-            except:
+            except requests.exceptions.Timeout as e:
+                if attempt < retries:
+                    wait_time = 0.5 * (attempt + 1)  # 0.5s, 1s
+                    logger.warning(f"API timeout ({method}), qayta urinilmoqda ({attempt + 1}/{retries + 1})...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"API timeout ({method}) - barcha urinishlar muvaffaqiyatsiz: {e}")
+                    return {"ok": False, "description": f"Timeout: {str(e)}"}
+            except requests.exceptions.HTTPError as e:
+                logger.error(f"API HTTP xatolik ({method}): {e}")
+                try:
+                    return response.json()
+                except:
+                    return {"ok": False, "description": str(e)}
+            except requests.exceptions.ConnectionError as e:
+                if attempt < retries:
+                    wait_time = 0.5 * (attempt + 1)
+                    logger.warning(f"API connection error ({method}), qayta urinilmoqda ({attempt + 1}/{retries + 1})...")
+                    time.sleep(wait_time)
+                else:
+                    logger.error(f"API connection error ({method}): {e}")
+                    return {"ok": False, "description": f"Connection error: {str(e)}"}
+            except Exception as e:
+                logger.error(f"API kutilmagan xatolik ({method}): {e}")
                 return {"ok": False, "description": str(e)}
-        except Exception as e:
-            logger.error(f"API kutilmagan xatolik ({method}): {e}")
-            return {"ok": False, "description": str(e)}
+
+        return {"ok": False, "description": "Unknown error"}
 
     def send_message(self, chat_id, text, reply_markup=None):
         params = {
@@ -78,7 +106,14 @@ class TelegramAPI:
         }
         if reply_markup:
             params["reply_markup"] = json.dumps(reply_markup)
-        return self.call("sendMessage", params)
+
+        result = self.call("sendMessage", params)
+
+        # Xatolikni log qilish (call metodi allaqachon retry qiladi)
+        if not result.get("ok"):
+            logger.error(f"send_message xatolik: {result.get('description')} (chat_id: {chat_id})")
+
+        return result
 
 class FirestoreDB:
     def __init__(self):
@@ -112,22 +147,30 @@ class FirestoreDB:
 
     def save_application(self, user_id, data, file_id, f_type):
         if not self.db: return False
-        try:
-            doc_ref = self.db.collection("applications").document()
-            doc_ref.set({
-                "user_id": user_id,
-                "name": data.get("name"),
-                "phone": data.get("phone"),
-                "position": data.get("position"),
-                "experience": data.get("exp"),
-                "cv_file_id": file_id,
-                "cv_type": f_type,
-                "timestamp": firestore.SERVER_TIMESTAMP
-            })
-            return True
-        except Exception as e:
-            logger.error(f"Firestore save error: {e}")
-            return False
+
+        # Retry mexanizmi (3 marta urinish)
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                doc_ref = self.db.collection("applications").document()
+                doc_ref.set({
+                    "user_id": user_id,
+                    "name": data.get("name"),
+                    "phone": data.get("phone"),
+                    "position": data.get("position"),
+                    "experience": data.get("exp"),
+                    "cv_file_id": file_id,
+                    "cv_type": f_type,
+                    "timestamp": firestore.SERVER_TIMESTAMP
+                })
+                return True
+            except Exception as e:
+                logger.error(f"Firestore save error (urinish {attempt + 1}/{max_retries}): {e}")
+                if attempt < max_retries - 1:
+                    time.sleep(1 * (attempt + 1))  # Exponential backoff: 1s, 2s, 3s
+                else:
+                    return False
+        return False
 
     def get_user_state(self, user_id):
         user_id_str = str(user_id)
@@ -668,13 +711,13 @@ class BotLogic:
             
             # Kreativ xabar: tanlangan bo'limga qarab har xil so'rash
             msg = self._label("msg_ask_position_manual", lang)
-            
+
             # Agar kreativlik qo'shmoqchi bo'lsak, bo'lim nomini xabarga qo'shamiz
-            if "uz" in lang:
+            if lang == "uz":
                 msg = f"Siz <b>{text}</b> bo'limini tanladingiz.\n\nIltimos, endi aniq lavozim yoki mutaxassislikni yozing (Masalan: Matematika o'qituvchisi, Bosh buxgalter va h.k.):"
-            elif "en" in lang:
+            elif lang == "en":
                 msg = f"You selected the <b>{text}</b> section.\n\nPlease now enter the specific position or specialization (Example: Math Teacher, Chief Accountant, etc.):"
-            elif "ru" in lang:
+            elif lang == "ru":
                 msg = f"Вы выбрали раздел <b>{text}</b>.\n\nТеперь введите конкретную должность или специализацию (Например: Учитель математики, Главный бухгалтер и т. д.):"
 
             markup = {"keyboard": [[{"text": self._label("cancel", lang)}]], "resize_keyboard": True}
@@ -826,19 +869,6 @@ class BotLogic:
         except Exception:
             pass
         return str(ts)
-
-    def _send_in_chunks(self, chat_id, text, reply_markup=None, max_len=3500):
-        lines = (text or "").splitlines() or [""]
-        buf = ""
-        for line in lines:
-            candidate = (buf + "\n" + line) if buf else line
-            if len(candidate) > max_len and buf:
-                self.api.send_message(chat_id, buf, reply_markup)
-                buf = line
-            else:
-                buf = candidate
-        if buf:
-            self.api.send_message(chat_id, buf, reply_markup)
 
     def _handle_callback(self, cb):
         cb_id = cb.get("id")
@@ -1074,6 +1104,18 @@ class BotLogic:
         
         self._send_in_chunks(chat_id, "\n".join(report), self._admin_menu(lang))
 
+    def _clean_emoji(self, text):
+        """Emojilarni olib tashlash (agar bor bo'lsa)"""
+        if not text:
+            return text
+        # Oddiy emojilarni olib tashlash
+        emoji_patterns = ["🏢", "👨‍🏫", "🧹", "🛡", "💡"]
+        clean_text = text
+        for emoji in emoji_patterns:
+            clean_text = clean_text.replace(emoji, "")
+        # Bosh va oxiridagi bo'sh joylarni olib tashlash
+        return clean_text.strip()
+
     def _is_valid_name(self, text):
         if not text: return False
         parts = text.strip().split()
@@ -1082,29 +1124,38 @@ class BotLogic:
     def _is_valid_phone(self, text):
         if not text: return False
         digits = "".join(filter(str.isdigit, text))
-        return len(digits) >= 7
+        # O'zbekiston telefon raqamlari uchun minimum 9 raqam (masalan: 901234567)
+        # Xalqaro format uchun 12 gacha raqam (masalan: 998901234567)
+        return 9 <= len(digits) <= 15
 
     def _send_to_hr(self, user_id, data, file_id, f_type, saved_to_firebase):
+        if not Config.HR_CHAT_ID:
+            logger.warning("HR_CHAT_ID sozlanmagan, ariza yuborilmadi")
+            return
+
         report = (
-            f"<b>Sizning arizangiz</b>\n\n"
+            f"<b>Yangi ariza</b>\n\n"
             f"👤 Nomzod: {data.get('name')}\n"
             f"📞 Tel: {data.get('phone')}\n"
             f"💼 Lavozim: {data.get('position')}\n"
             f"📝 Tajriba: {data.get('exp')}"
         )
-        
-        if file_id:
-            method = "sendDocument" if f_type == "doc" else "sendPhoto"
-            param_key = "document" if f_type == "doc" else "photo"
-            params = {
-                "chat_id": Config.HR_CHAT_ID,
-                param_key: file_id,
-                "caption": report,
-                "parse_mode": "HTML"
-            }
-            self.api.call(method, params)
-        else:
-            self.api.send_message(Config.HR_CHAT_ID, report)
+
+        try:
+            if file_id:
+                method = "sendDocument" if f_type == "doc" else "sendPhoto"
+                param_key = "document" if f_type == "doc" else "photo"
+                params = {
+                    "chat_id": Config.HR_CHAT_ID,
+                    param_key: file_id,
+                    "caption": report,
+                    "parse_mode": "HTML"
+                }
+                self.api.call(method, params)
+            else:
+                self.api.send_message(Config.HR_CHAT_ID, report)
+        except Exception as e:
+            logger.error(f"HR ga yuborishda xatolik: {e}")
 
 def run_health_check():
     """Render uchun health check endpointini ishga tushirish"""
@@ -1134,63 +1185,81 @@ def run_polling():
     api = TelegramAPI(Config.TOKEN)
     db = FirestoreDB()
     bot = BotLogic(api, db)
-    
+
     offset = 0
     logger.info("Bot ishga tushdi. Yangilanishlar kutilmoqda (polling)...")
-    
+
     # Webhookni o'chirish (polling rejimida ishlash uchun)
     api.call("deleteWebhook", {"drop_pending_updates": True})
-    
+
     # Bot komandalarini o'rnatish
     commands = [
         {"command": "start", "description": "Botni ishga tushirish"},
         {"command": "menu", "description": "Asosiy menyu"},
         {"command": "admin", "description": "Admin panel (faqat adminlar)"}
     ]
-    api.call("setMyCommands", {"commands": json.dumps(commands)})
-    logger.info("Bot komandalari o'rnatildi")
-    
-    executor = ThreadPoolExecutor(max_workers=20)
-    retry_count = 0
-    
-    while True:
-        try:
-            result = api.call("getUpdates", {"timeout": 30, "offset": offset})
-            
-            if not result.get("ok"):
-                error_code = result.get("error_code")
-                description = result.get("description", "")
-                
-                if error_code == 409: # Conflict
-                    logger.warning("Conflict aniqlandi, webhook o'chirilmoqda...")
-                    api.call("deleteWebhook", {"drop_pending_updates": True})
-                    time.sleep(2)
-                elif error_code == 401: # Unauthorized
-                    logger.error("TOKEN noto'g'ri!")
-                    break
-                else:
-                    logger.error(f"Polling xatosi: {description}")
-                    time.sleep(2)
-                continue
+    result = api.call("setMyCommands", {"commands": commands})
+    if result.get("ok"):
+        logger.info("Bot komandalari o'rnatildi")
+    else:
+        logger.warning(f"Bot komandalari o'rnatilmadi: {result.get('description')}")
 
-            updates = result.get("result") or []
-            for upd in updates:
-                update_id = upd.get("update_id")
-                if isinstance(update_id, int):
-                    offset = update_id + 1
-                
-                # Update'ni alohida thread'da qayta ishlash
-                executor.submit(bot.handle_update, upd)
-            
-            retry_count = 0 
-        except requests.exceptions.ConnectionError:
-            retry_count += 1
-            wait_time = min(retry_count * 2, 30)
-            logger.warning(f"Internet aloqasi yo'q. {wait_time} soniyadan keyin qayta uriniladi...")
-            time.sleep(wait_time)
-        except Exception as e:
-            logger.exception(f"Kutilmagan xatolik: {e}")
-            time.sleep(2)
+    # Kichik botlar uchun 5 worker yetarli
+    executor = ThreadPoolExecutor(max_workers=5)
+    retry_count = 0
+    shutdown_flag = threading.Event()
+
+    # Graceful shutdown handler
+    def shutdown_handler(signum, frame):
+        logger.info("To'xtatish signali qabul qilindi, bot to'xtatilmoqda...")
+        shutdown_flag.set()
+
+    signal.signal(signal.SIGINT, shutdown_handler)
+    signal.signal(signal.SIGTERM, shutdown_handler)
+
+    try:
+        while not shutdown_flag.is_set():
+            try:
+                result = api.call("getUpdates", {"timeout": 30, "offset": offset})
+
+                if not result.get("ok"):
+                    error_code = result.get("error_code")
+                    description = result.get("description", "")
+
+                    if error_code == 409: # Conflict
+                        logger.warning("Conflict aniqlandi, webhook o'chirilmoqda...")
+                        api.call("deleteWebhook", {"drop_pending_updates": True})
+                        time.sleep(2)
+                    elif error_code == 401: # Unauthorized
+                        logger.error("TOKEN noto'g'ri!")
+                        break
+                    else:
+                        logger.error(f"Polling xatosi: {description}")
+                        time.sleep(2)
+                    continue
+
+                updates = result.get("result") or []
+                for upd in updates:
+                    update_id = upd.get("update_id")
+                    if isinstance(update_id, int):
+                        offset = update_id + 1
+
+                    # Update'ni alohida thread'da qayta ishlash
+                    executor.submit(bot.handle_update, upd)
+
+                retry_count = 0
+            except requests.exceptions.ConnectionError:
+                retry_count += 1
+                wait_time = min(retry_count * 2, 30)
+                logger.warning(f"Internet aloqasi yo'q. {wait_time} soniyadan keyin qayta uriniladi...")
+                time.sleep(wait_time)
+            except Exception as e:
+                logger.exception(f"Kutilmagan xatolik: {e}")
+                time.sleep(2)
+    finally:
+        logger.info("Bot to'xtatilmoqda, barcha threadlar yakunlanmoqda...")
+        executor.shutdown(wait=True, cancel_futures=False)
+        logger.info("Barcha threadlar yakunlandi.")
 
 if __name__ == "__main__":
     try:
