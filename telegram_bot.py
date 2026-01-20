@@ -320,6 +320,11 @@ class BotLogic:
                 ["🧹 Tozalik hodimi", "🛡 Xavfsizlik / Qo'riqlash"],
                 ["💡 Boshqa lavozim"]
             ],
+            "uz_cyrl": [
+                ["🏢 Бошқарув", "👨‍🏫 Ўқитувчи"],
+                ["🧹 Тозалик ҳодими", "🛡 Хавфсизлик / Қўриқлаш"],
+                ["💡 Бошқа лавозим"]
+            ],
             "en": [
                 ["🏢 Management", "👨‍🏫 Teacher"],
                 ["🧹 Cleaning staff", "🛡 Security"],
@@ -332,28 +337,30 @@ class BotLogic:
             ]
         }
         self.labels = {
-            "menu_about": {"uz": "🏫 Biz haqimizda", "en": "🏫 About us", "ru": "🏫 О нас"},
-            "menu_contact": {"uz": "💬 Biz bilan bog'lanish", "en": "💬 Contact us", "ru": "💬 Связаться"},
-            "menu_location": {"uz": "📍 Manzilimiz", "en": "📍 Our Location", "ru": "📍 Наш адрес"},
-            "menu_jobs": {"uz": "💼 Bo'sh ish o'rinlari", "en": "💼 Job vacancies", "ru": "💼 Вакансии"},
-            "menu_lang": {"uz": "🌐 Tilni almashtirish", "en": "🌐 Change language", "ru": "🌐 Сменить язык"},
-            "back": {"uz": "⬅️ Orqaga", "en": "⬅️ Back", "ru": "⬅️ Назад"},
-            "cancel": {"uz": "❌ Bekor qilish", "en": "❌ Cancel", "ru": "❌ Отмена"},
-            "skip": {"uz": "O'tkazib yuborish", "en": "Skip", "ru": "Пропустить"},
-            "send_contact": {"uz": "Kontaktni yuborish", "en": "Send contact", "ru": "Отправить контакт"},
-            "lang_uz": {"uz": "🇺🇿 UZ", "en": "🇺🇿 UZ", "ru": "🇺🇿 UZ"},
-            "lang_en": {"uz": "🇬🇧 ENG", "en": "🇬🇧 ENG", "ru": "🇬🇧 ENG"},
-            "lang_ru": {"uz": "🇷🇺 RUS", "en": "🇷🇺 RUS", "ru": "🇷🇺 RUS"},
-            "menu_admin": {"uz": "🔐 Admin", "en": "🔐 Admin", "ru": "🔐 Админ"},
-            "admin_apps": {"uz": "📨 Arizalar", "en": "📨 Applications", "ru": "📨 Заявки"},
-            "admin_search": {"uz": "🔎 Lavozim bo‘yicha qidirish", "en": "🔎 Search by position", "ru": "🔎 Поиск по должности"},
-            "admin_stats": {"uz": "📊 Statistika (30 kun)", "en": "📊 Statistics (30 days)", "ru": "📊 Статистика (30 дней)"},
-            "admin_back": {"uz": "⬅️ Orqaga", "en": "⬅️ Back", "ru": "⬅️ Назад"},
-            "other_pos": {"uz": "💡 Boshqa lavozim", "en": "💡 Other position", "ru": "💡 Другая должность"},
+            "menu_about": {"uz": "🏫 Biz haqimizda", "uz_cyrl": "🏫 Биз ҳақимизда", "en": "🏫 About us", "ru": "🏫 О нас"},
+            "menu_contact": {"uz": "💬 Biz bilan bog'lanish", "uz_cyrl": "💬 Биз билан боғланиш", "en": "💬 Contact us", "ru": "💬 Связаться"},
+            "menu_location": {"uz": "📍 Manzilimiz", "uz_cyrl": "📍 Манзилимиз", "en": "📍 Our Location", "ru": "📍 Наш адрес"},
+            "menu_jobs": {"uz": "💼 Bo'sh ish o'rinlari", "uz_cyrl": "💼 Бўш иш ўринлари", "en": "💼 Job vacancies", "ru": "💼 Вакансии"},
+            "menu_lang": {"uz": "🌐 Tilni almashtirish", "uz_cyrl": "🌐 Тилни алмаштириш", "en": "🌐 Change language", "ru": "🌐 Сменить язык"},
+            "back": {"uz": "⬅️ Orqaga", "uz_cyrl": "⬅️ Орқага", "en": "⬅️ Back", "ru": "⬅️ Назад"},
+            "cancel": {"uz": "❌ Bekor qilish", "uz_cyrl": "❌ Бекор қилиш", "en": "❌ Cancel", "ru": "❌ Отмена"},
+            "skip": {"uz": "O'tkazib yuborish", "uz_cyrl": "Ўтказиб юбориш", "en": "Skip", "ru": "Пропустить"},
+            "send_contact": {"uz": "Kontaktni yuborish", "uz_cyrl": "Контактни юбориш", "en": "Send contact", "ru": "Отправить контакт"},
+            "lang_uz": {"uz": "🇺🇿 Lotin", "uz_cyrl": "🇺🇿 Лотин", "en": "🇺🇿 Latin", "ru": "🇺🇿 Латиница"},
+            "lang_uz_cyrl": {"uz": "🇺🇿 Kiril", "uz_cyrl": "🇺🇿 Кирил", "en": "🇺🇿 Cyrillic", "ru": "🇺🇿 Кириллица"},
+            "lang_en": {"uz": "🇬🇧 ENG", "uz_cyrl": "🇬🇧 ENG", "en": "🇬🇧 ENG", "ru": "🇬🇧 ENG"},
+            "lang_ru": {"uz": "🇷🇺 RUS", "uz_cyrl": "🇷🇺 RUS", "en": "🇷🇺 RUS", "ru": "🇷🇺 RUS"},
+            "menu_admin": {"uz": "🔐 Admin", "uz_cyrl": "🔐 Админ", "en": "🔐 Admin", "ru": "🔐 Админ"},
+            "admin_apps": {"uz": "📨 Arizalar", "uz_cyrl": "📨 Аризалар", "en": "📨 Applications", "ru": "📨 Заявки"},
+            "admin_search": {"uz": "🔎 Lavozim bo'yicha qidirish", "uz_cyrl": "🔎 Лавозим бўйича қидириш", "en": "🔎 Search by position", "ru": "🔎 Поиск по должности"},
+            "admin_stats": {"uz": "📊 Statistika (30 kun)", "uz_cyrl": "📊 Статистика (30 кун)", "en": "📊 Statistics (30 days)", "ru": "📊 Статистика (30 дней)"},
+            "admin_back": {"uz": "⬅️ Orqaga", "uz_cyrl": "⬅️ Орқага", "en": "⬅️ Back", "ru": "⬅️ Назад"},
+            "other_pos": {"uz": "💡 Boshqa lavozim", "uz_cyrl": "💡 Бошқа лавозим", "en": "💡 Other position", "ru": "💡 Другая должность"},
             
             # Messages
             "msg_welcome": {
                 "uz": "<b>Assalomu alaykum!</b> 😊\n\nAl-Xorazmiy xususiy maktabiga xush kelibsiz! 🏫✨\n\nKerakli bo'limni tanlang: 👇",
+                "uz_cyrl": "<b>Ассалому алайкум!</b> 😊\n\nАл-Хоразмий хусусий мактабига хуш келибсиз! 🏫✨\n\nКеракли бўлимни танланг: 👇",
                 "en": "<b>Hello!</b> 😊\n\nWelcome to Al-Khwarizmi private school! 🏫✨\n\nPlease choose a section: 👇",
                 "ru": "<b>Здравствуйте!</b> 😊\n\nДобро пожаловать в частную школу Аль-Хорезми! 🏫✨\n\nПожалуйста, выберите раздел: 👇"
             },
@@ -365,6 +372,13 @@ class BotLogic:
                       "🍱 <b>Oshxona:</b> 2 mahal bepul, halol va sifatli taomlar.\n"
                       "⏰ <b>Vaqt:</b> Darslar 8:30 – 17:00 (Shanba 14:00 gacha).\n"
                       "🗓 <b>Hafta:</b> 6 kunlik o'quv tizimi.",
+                "uz_cyrl": "<b>🏫 Ал-Хоразмий мактаби ҳақида:</b>\n\n"
+                           "🎓 <b>Таълим:</b> 1-11 синфлар ва махсус тайёрлов курслари.\n"
+                           "🇺🇿 <b>Тил:</b> Ўзбек тили.\n"
+                           "📚 <b>Чуқурлаштирилган фанлар:</b> Инглиз тили, Математика, IT ва Араб тили.\n"
+                           "🍱 <b>Ошхона:</b> 2 маҳал бепул, ҳалол ва сифатли таомлар.\n"
+                           "⏰ <b>Вақт:</b> Дарслар 8:30 – 17:00 (Шанба 14:00 гача).\n"
+                           "🗓 <b>Ҳафта:</b> 6 кунлик ўқув тизими.",
                 "en": "<b>🏫 About Al-Khwarizmi School:</b>\n\n"
                       "🎓 <b>Education:</b> Grades 1-11 and preschool preparation.\n"
                       "🇺🇿 <b>Language:</b> Uzbek.\n"
@@ -385,6 +399,10 @@ class BotLogic:
                       "☎️ <b>Telefon:</b> +998692100007\n"
                       "👨‍💻 <b>Telegram:</b> @Onlineeaz\n\n"
                       "Savollaringiz bo'lsa, qo'ng'iroq qilishingiz yoki adminga murojaat qilishingiz mumkin. 😊",
+                "uz_cyrl": "<b>📞 Биз билан боғланиш:</b>\n\n"
+                           "☎️ <b>Телефон:</b> +998692100007\n"
+                           "👨‍💻 <b>Telegram:</b> @Onlineeaz\n\n"
+                           "Саволларингиз бўлса, қўнғироқ қилишингиз ёки adminга мурожаат қилишингиз мумкин. 😊",
                 "en": "<b>📞 Contact us:</b>\n\n"
                       "☎️ <b>Phone:</b> +998692100007\n"
                       "👨‍💻 <b>Telegram:</b> @Onlineeaz\n\n"
@@ -401,6 +419,12 @@ class BotLogic:
                       "Lola jahon bozoridan o'tganda, Qumqo'rg'on svetofori oldida.\n\n"
                       "📍 <b>Lokatsiya:</b>\n"
                       "https://goo.gl/maps/T71FNWrrKkMFVmvU9",
+                "uz_cyrl": "<b>📍 Манзилимиз:</b>\n\n"
+                           "🇺🇿 Мактабимиз Наманган вилоятининг Наманган туманида жойлашган.\n\n"
+                           "📍 <b>Мўлжал:</b>\n"
+                           "Лола жаҳон бозоридан ўтганда, Қумқўрғон светофори олдида.\n\n"
+                           "📍 <b>Локация:</b>\n"
+                           "https://goo.gl/maps/T71FNWrrKkMFVmvU9",
                 "en": "<b>📍 Our Location:</b>\n\n"
                       "🇺🇿 Our school is located in the Namangan district of the Namangan region.\n\n"
                       "📍 <b>Landmark:</b>\n"
@@ -416,121 +440,145 @@ class BotLogic:
             },
             "msg_ask_name": {
                 "uz": "<b>Bo'sh ish o'rinlari</b>\n\nIltimos, ism va familiyangizni kiriting:",
+                "uz_cyrl": "<b>Бўш иш ўринлари</b>\n\nИлтимос, исм ва фамилиянгизни киритинг:",
                 "en": "<b>Job vacancies</b>\n\nPlease enter your first and last name:",
                 "ru": "<b>Вакансии</b>\n\nПожалуйста, введите ваше имя и фамилию:"
             },
             "msg_ask_phone": {
                 "uz": "Telefon raqamingizni yuboring (tugmani bosing):",
+                "uz_cyrl": "Телефон рақамингизни юборинг (тугмани босинг):",
                 "en": "Send your phone number (click the button):",
                 "ru": "Отправьте свой номер телефона (нажмите кнопку):"
             },
             "msg_ask_position": {
                 "uz": "Qaysi bo'limga topshirmoqchisiz? (Tanlang):",
+                "uz_cyrl": "Қайси бўлимга топширмоқчисиз? (Танланг):",
                 "en": "Which section are you applying for? (Choose):",
                 "ru": "В какой раздел вы подаете заявку? (Выберите):"
             },
             "msg_ask_position_manual": {
                 "uz": "Iltimos, mutaxassisligingiz yoki lavozim turini kiriting (Masalan: Matematika o'qituvchisi, Bosh buxgalter va h.k.):",
+                "uz_cyrl": "Илтимос, мутахассислигингиз ёки лавозим турини киритинг (Масалан: Математика ўқитувчиси, Бош бухгалтер ва ҳ.к.):",
                 "en": "Please enter your specialization or position type (Example: Math Teacher, Chief Accountant, etc.):",
                 "ru": "Пожалуйста, введите вашу специализацию или тип должности (Например: Учитель математики, Главный бухгалтер и т. д.):"
             },
             "msg_ask_exp": {
                 "uz": "Ish tajribangiz haqida qisqacha ma'lumot bering:",
+                "uz_cyrl": "Иш тажрибангиз ҳақида қисқача маълумот беринг:",
                 "en": "Provide brief information about your work experience:",
                 "ru": "Кратко расскажите о своем опыте работы:"
             },
             "msg_ask_cv": {
                 "uz": "Rezyume (PDF yoki Rasm) yuboring yoki 'O'tkazib yuborish' tugmasini bosing:",
+                "uz_cyrl": "Резюме (PDF ёки Расм) юборинг ёки 'Ўтказиб юбориш' тугмасини босинг:",
                 "en": "Send your resume (PDF or Image) or click 'Skip':",
                 "ru": "Отправьте резюме (PDF или фото) или нажмите 'Пропустить':"
             },
             "msg_applied": {
                 "uz": "✅ <b>Arizangiz HR bo'limiga yuborildi.</b> Siz bilan tez orada bog'lanamiz.",
+                "uz_cyrl": "✅ <b>Аризангиз HR бўлимига юборилди.</b> Сиз билан тез орада боғланамиз.",
                 "en": "✅ <b>Your application has been sent to the HR department.</b> We will contact you soon.",
                 "ru": "✅ <b>Ваша заявка отправлена в отдел кадров.</b> Мы свяжемся с вами в ближайшее время."
             },
             "msg_canceled": {
                 "uz": "Ariza topshirish bekor qilindi.",
+                "uz_cyrl": "Ариза топшириш бекор қилинди.",
                 "en": "Application canceled.",
                 "ru": "Подача заявки отменена."
             },
             "msg_invalid_name": {
                 "uz": "Iltimos, ism va familiyangizni to'liq yozing (Masalan: Ali Valiyev):",
+                "uz_cyrl": "Илтимос, исм ва фамилиянгизни тўлиқ ёзинг (Масалан: Али Валиев):",
                 "en": "Please write your full name (Example: Ali Valiyev):",
                 "ru": "Пожалуйста, напишите свое полное имя (Например: Али Валиев):"
             },
             "msg_invalid_phone": {
                 "uz": "Iltimos, telefon raqamingizni tugma orqali yuboring yoki yozing:",
+                "uz_cyrl": "Илтимос, телефон рақамингизни тугма орқали юборинг ёки ёзинг:",
                 "en": "Please send your phone number via button or type it:",
                 "ru": "Пожалуйста, отправьте свой номер телефона через кнопку или напишите его:"
             },
             "msg_invalid_exp": {
                 "uz": "Tajribangiz haqida batafsilroq yozing:",
+                "uz_cyrl": "Тажрибангиз ҳақида батафсилроқ ёзинг:",
                 "en": "Write more about your experience:",
                 "ru": "Напишите подробнее о своем опыте:"
             },
             "msg_invalid_cv": {
                 "uz": "Iltimos, fayl yuboring yoki tugmani bosing.",
+                "uz_cyrl": "Илтимос, файл юборинг ёки тугмани босинг.",
                 "en": "Please send a file or click the button.",
                 "ru": "Пожалуйста, отправьте файл или нажмите кнопку."
             },
             "msg_select_lang": {
                 "uz": "Tilni tanlang:",
+                "uz_cyrl": "Тилни танланг:",
                 "en": "Choose language:",
                 "ru": "Выберите язык:"
             },
             "msg_lang_changed": {
                 "uz": "✅ Til o'zgartirildi.",
+                "uz_cyrl": "✅ Тил ўзгартирилди.",
                 "en": "✅ Language changed.",
                 "ru": "✅ Язык изменен."
             },
             "msg_choose_menu": {
                 "uz": "Iltimos, pastdagi menyudan birini tanlang.",
+                "uz_cyrl": "Илтимос, пастдаги менюдан бирини танланг.",
                 "en": "Please choose from the menu below.",
                 "ru": "Пожалуйста, выберите из меню ниже."
             },
             "admin_panel": {
                 "uz": "Admin panel:",
+                "uz_cyrl": "Админ панел:",
                 "en": "Admin panel:",
                 "ru": "Админ панель:"
             },
             "admin_search_ask": {
                 "uz": "Lavozim nomini kiriting:",
+                "uz_cyrl": "Лавозим номини киритинг:",
                 "en": "Enter the position name:",
                 "ru": "Введите название должности:"
             },
             "admin_no_results": {
                 "uz": "Natija topilmadi.",
+                "uz_cyrl": "Натижа топилмади.",
                 "en": "No results found.",
                 "ru": "Результатов не найдено."
             },
             "admin_no_apps": {
                 "uz": "Hozircha arizalar topilmadi.",
+                "uz_cyrl": "Ҳозирча аризалар топилмади.",
                 "en": "No applications found yet.",
                 "ru": "Заявок пока не найдено."
             },
             "admin_firebase_error": {
                 "uz": "Firebase ulanmagan.",
+                "uz_cyrl": "Firebase уланмаган.",
                 "en": "Firebase not connected.",
                 "ru": "Firebase не подключен."
             },
             "admin_app_details": {
                 "uz": "<b>Ariza tafsiloti</b>",
+                "uz_cyrl": "<b>Ариза тафсилоти</b>",
                 "en": "<b>Application detail</b>",
                 "ru": "<b>Детали заявки</b>"
             },
             "admin_stats_title": {
                 "uz": "<b>Statistika (oxirgi {days} kun)</b>",
+                "uz_cyrl": "<b>Статистика (охирги {days} кун)</b>",
                 "en": "<b>Statistics (last {days} days)</b>",
                 "ru": "<b>Статистика (за последние {days} дней)</b>"
             },
             "admin_total": {
                 "uz": "Jami",
+                "uz_cyrl": "Жами",
                 "en": "Total",
                 "ru": "Всего"
             },
             "admin_closed": {
                 "uz": "Yopildi.",
+                "uz_cyrl": "Ёпилди.",
                 "en": "Closed.",
                 "ru": "Закрыто."
             }
@@ -566,7 +614,8 @@ class BotLogic:
     def _lang_menu(self, lang):
         return {
             "keyboard": [
-                [{"text": self._label("lang_uz", lang)}, {"text": self._label("lang_en", lang)}, {"text": self._label("lang_ru", lang)}],
+                [{"text": self._label("lang_uz", lang)}, {"text": self._label("lang_uz_cyrl", lang)}],
+                [{"text": self._label("lang_en", lang)}, {"text": self._label("lang_ru", lang)}],
                 [{"text": self._label("back", lang)}],
             ],
             "resize_keyboard": True
@@ -625,8 +674,15 @@ class BotLogic:
             self.api.send_message(chat_id, self._label("msg_select_lang", lang), self._lang_menu(lang))
             return
 
-        if action in ["lang_uz", "lang_en", "lang_ru"]:
-            new_lang = "uz" if action == "lang_uz" else ("en" if action == "lang_en" else "ru")
+        if action in ["lang_uz", "lang_uz_cyrl", "lang_en", "lang_ru"]:
+            if action == "lang_uz":
+                new_lang = "uz"
+            elif action == "lang_uz_cyrl":
+                new_lang = "uz_cyrl"
+            elif action == "lang_en":
+                new_lang = "en"
+            else:
+                new_lang = "ru"
             self.db.set_user_lang(user_id, new_lang)
             self.api.send_message(chat_id, self._label("msg_lang_changed", new_lang), self._main_menu(new_lang, chat_id))
             return
@@ -715,6 +771,8 @@ class BotLogic:
             # Agar kreativlik qo'shmoqchi bo'lsak, bo'lim nomini xabarga qo'shamiz
             if lang == "uz":
                 msg = f"Siz <b>{text}</b> bo'limini tanladingiz.\n\nIltimos, endi aniq lavozim yoki mutaxassislikni yozing (Masalan: Matematika o'qituvchisi, Bosh buxgalter va h.k.):"
+            elif lang == "uz_cyrl":
+                msg = f"Сиз <b>{text}</b> бўлимини танладингиз.\n\nИлтимос, энди аниқ лавозим ёки мутахассисликни ёзинг (Масалан: Математика ўқитувчиси, Бош бухгалтер ва ҳ.к.):"
             elif lang == "en":
                 msg = f"You selected the <b>{text}</b> section.\n\nPlease now enter the specific position or specialization (Example: Math Teacher, Chief Accountant, etc.):"
             elif lang == "ru":
