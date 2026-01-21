@@ -621,6 +621,19 @@ class BotLogic:
             "resize_keyboard": True
         }
 
+    def _welcome_lang_menu(self):
+        """Birinchi marta bot ishga tushganda til tanlash menusi (creative)"""
+        return {
+            "keyboard": [
+                [{"text": "🇺🇿 O'zbek (Lotin)"}],
+                [{"text": "🇺🇿 Ўзбек (Кирил)"}],
+                [{"text": "🇷🇺 Русский"}],
+                [{"text": "🇬🇧 English"}],
+            ],
+            "resize_keyboard": True,
+            "one_time_keyboard": True
+        }
+
     def _admin_menu(self, lang="uz"):
         return {
             "keyboard": [
@@ -665,9 +678,39 @@ class BotLogic:
 
         if text in ["/start", "/menu"] or text == "Menu":
             self.db.set_user_state(user_id, None)
+
+            # Agar foydalanuvchi yangi bo'lsa (til tanlamagan), til tanlash menusini ko'rsatish
+            if not lang:
+                # Har uchala tilda til tanlash so'rovi (creative)
+                welcome_msg = (
+                    "🌟 <b>Al-Xorazmiy xususiy maktabi</b> 🏫\n\n"
+                    "🌍 <i>Iltimos, tilni tanlang:</i>\n"
+                    "🌍 <i>Пожалуйста, выберите язык:</i>\n"
+                    "🌍 <i>Please select a language:</i>"
+                )
+                self.api.send_message(chat_id, welcome_msg, self._welcome_lang_menu())
+                return
+
+            # Agar til tanlangan bo'lsa, asosiy menyuni ko'rsatish
             self.api.send_message(chat_id, self._label("msg_welcome", lang), self._main_menu(lang, chat_id))
             return
         
+        # Welcome lang menu'dan til tanlash (creative shaklda)
+        if text in ["🇺🇿 O'zbek (Lotin)", "🇺🇿 Ўзбек (Кирил)", "🇷🇺 Русский", "🇬🇧 English"]:
+            if text == "🇺🇿 O'zbek (Lotin)":
+                new_lang = "uz"
+            elif text == "🇺🇿 Ўзбек (Кирил)":
+                new_lang = "uz_cyrl"
+            elif text == "🇷🇺 Русский":
+                new_lang = "ru"
+            else:  # English
+                new_lang = "en"
+
+            self.db.set_user_lang(user_id, new_lang)
+            # Til tanlangandan keyin xush kelibsiz xabarini ko'rsatish
+            self.api.send_message(chat_id, self._label("msg_welcome", new_lang), self._main_menu(new_lang, chat_id))
+            return
+
         action = self._action_from_text(text)
 
         if action == "menu_lang":
