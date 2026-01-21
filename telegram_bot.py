@@ -1319,6 +1319,50 @@ def run_polling():
     else:
         logger.warning(f"Bot komandalari o'rnatilmadi: {result.get('description')}")
 
+    # Bot description va short description o'rnatish
+    description = (
+        "🏫 Al-Xorazmiy xususiy maktabiga xush kelibsiz!\n\n"
+        "✨ Bu bot orqali siz:\n"
+        "📚 Maktab haqida to'liq ma'lumot olishingiz\n"
+        "📍 Manzil va bog'lanish ma'lumotlarini ko'rishingiz\n"
+        "💼 Bo'sh ish o'rinlariga ariza topshirishingiz mumkin\n\n"
+        "🌍 4 tilda: O'zbek (Lotin), O'zbek (Kiril), English, Русский\n\n"
+        "Anketani to'ldirish uchun START tugmasini bosing! 👇"
+    )
+
+    short_description = (
+        "Al-Xorazmiy maktabiga ishga qabul qilish boti. "
+        "Maktab haqida ma'lumot va bo'sh ish o'rinlariga ariza topshirish."
+    )
+
+    api.call("setMyDescription", {"description": description})
+    api.call("setMyShortDescription", {"description": short_description})
+    logger.info("Bot description o'rnatildi")
+
+    # Bot profil rasmini o'rnatish (logo)
+    import os
+    logo_files = ["logo.png", "logo.jpg", "logo.jpeg", "school_logo.png", "school_logo.jpg"]
+    logo_path = None
+
+    for logo_file in logo_files:
+        if os.path.exists(logo_file):
+            logo_path = logo_file
+            break
+
+    if logo_path:
+        try:
+            with open(logo_path, "rb") as photo:
+                files = {"photo": photo}
+                result = api.call("setMyProfilePhoto", files=files)
+                if result.get("ok"):
+                    logger.info(f"Bot profil rasmi o'rnatildi: {logo_path}")
+                else:
+                    logger.warning(f"Bot profil rasmi o'rnatilmadi: {result.get('description')}")
+        except Exception as e:
+            logger.error(f"Bot profil rasmini o'rnatishda xatolik: {e}")
+    else:
+        logger.info("Logo fayli topilmadi. Bot profil rasmini o'rnatish uchun logo.png yoki logo.jpg faylini qo'shing.")
+
     # Kichik botlar uchun 5 worker yetarli
     executor = ThreadPoolExecutor(max_workers=5)
     retry_count = 0
