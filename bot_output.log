@@ -1,0 +1,14 @@
+2026-06-29 14:01:59,022 - TelegramBot - INFO - Health check serveri ishga tushdi.
+2026-06-29 14:01:59,053 - TelegramBot - INFO - Firebase muvaffaqiyatli bog'landi
+ * Serving Flask app 'telegram_bot'
+2026-06-29 14:01:59,053 - TelegramBot - INFO - Bot ishga tushdi. Yangilanishlar kutilmoqda (polling)...
+ * Debug mode: off
+Address already in use
+Port 10000 is in use by another program. Either identify and stop that program, or start the server with a different port.
+2026-06-29 14:01:59,908 - TelegramBot - ERROR - API HTTP xatolik (setMyCommands): 400 Client Error: Bad Request for url: https://api.telegram.org/bot8588005319:AAEYaiwXSz0r0tKiOzI7wDGyyRlo-HHb-D4/setMyCommands
+2026-06-29 14:01:59,908 - TelegramBot - WARNING - Bot komandalari o'rnatilmadi: Bad Request: can't parse commands JSON object
+2026-06-29 14:02:00,367 - TelegramBot - INFO - Bot description o'rnatildi
+2026-06-29 14:02:00,367 - TelegramBot - INFO - Logo fayli topilmadi. Bot profil rasmini o'rnatish uchun logo.png yoki logo.jpg faylini qo'shing.
+2026-06-29 14:02:15,448 - TelegramBot - INFO - To'xtatish signali qabul qilindi, bot to'xtatilmoqda...
+2026-06-29 14:02:30,574 - TelegramBot - INFO - Bot to'xtatilmoqda, barcha threadlar yakunlanmoqda...
+2026-06-29 14:02:30,575 - TelegramBot - INFO - Barcha threadlar yakunlandi.

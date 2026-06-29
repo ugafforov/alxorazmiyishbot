@@ -6,7 +6,7 @@ import logging
 import requests
 import threading
 import signal
-from flask import Flask
+from flask import Flask, request
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from collections import OrderedDict
@@ -1671,13 +1671,28 @@ class BotLogic:
         except Exception as e:
             logger.error(f"HR ga yuborishda xatolik: {e}")
 
-def run_health_check():
-    """Render uchun health check endpointini ishga tushirish"""
+def run_webhook():
+    """Vercel webhook uchun Flask server"""
     app = Flask(__name__)
 
     @app.route('/')
     def health_check():
         return "Bot is running!", 200
+
+    @app.route('/webhook', methods=['POST'])
+    def webhook():
+        """Telegram webhook endpoint"""
+        if request.method == 'POST':
+            update = request.get_json()
+            if update:
+                # Initialize bot components
+                api = TelegramAPI(Config.TOKEN)
+                db = FirestoreDB()
+                bot = BotLogic(api, db)
+                # Handle update
+                bot.handle_update(update)
+            return {"ok": True}, 200
+        return {"ok": False}, 400
 
     port = int(os.environ.get("PORT", 10000))
     # Flask loglarini kamaytirish
